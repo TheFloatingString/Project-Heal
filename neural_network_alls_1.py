@@ -12,13 +12,22 @@ http://archive.ics.uci.edu/ml/datasets/Cervical+cancer+%28Risk+Factors%29#
 
 """
 
+# SUPPRESS ALL WARNINGS:
+import warnings
+warnings.filterwarnings("ignore")
+
 # IMPORT MODUELS
 
 import csv              # Used to read CSV files
 
+import time             # Keep track of time
+
+import matplotlib.pyplot as plt     # Generating 2D charts
+
 import keras            # Used for neural network
 from keras.models import Sequential
 from keras.layers import Dense
+from keras import optimizers        # Used for optimization
 
 import numpy as np      # Used to analyze data and arrays
 
@@ -30,6 +39,7 @@ master_array_2 = []     # Stores all the treated data
 X = []                  # Untreated data
 Y = []                  # Results
 
+start = time.time()
 # Description of the program
 print("THIS IS A SAMPLE NEURAL NETWORK USED ON PATIENT DATA FOR CERVICAL CANCER")
 
@@ -62,7 +72,7 @@ def list_size_2dim(array_pr):
     print(len(array_pr))
 
 # Load dataset
-read_file('risk_factors_cervical_cancer.csv')
+read_file('cervical_cancer_data.csv')
 print("Reading file...")
 
 # Remove symbol
@@ -84,11 +94,12 @@ print(len(master_array_2))
 for row in master_array_2:
     row = [float(x) for x in row]
     Y.append(row[26])
-    print(row[26])
-    X.append(row)
 
 # X: Data
-
+for row in master_array_2:
+    row = [float(x) for x in row]
+    del row[26:]
+    X.append(row)
 
 print("Data ready \n")
 
@@ -98,16 +109,45 @@ print("Data ready \n")
 model = Sequential()
 
 # Neural network
-model.add(Dense(36, input_dim=34, init='uniform', activation='sigmoid' ))
-model.add(Dense(32, init='uniform', activation='sigmoid'))
-model.add(Dense(32, init='uniform', activation='sigmoid'))
-model.add(Dense(32, init='uniform', activation='sigmoid'))
-model.add(Dense(33, init='uniform', activation='sigmoid'))
+model.add(Dense(20, input_dim=26, init='uniform', activation='sigmoid' ))
+model.add(Dense(25, init='uniform', activation='sigmoid'))
+model.add(Dense(25, init='uniform', activation='sigmoid'))
+model.add(Dense(20, init='uniform', activation='sigmoid'))
+model.add(Dense(8, init='uniform', activation='sigmoid'))
+model.add(Dense(1, init='uniform', activation='sigmoid'))
+
 
 # Compile model
+sgd = optimizers.SGD(lr=0.0001, decay=1e-10, momentum=0.01, nesterov=True)
 model.compile(loss='mean_squared_logarithmic_error', optimizer='SGD', metrics=['accuracy'])
 
 # Fit model
-history = model.fit(X, Y, nb_epoch=20, validation_split=0.2, batch_size=3)
+history = model.fit(X, Y, nb_epoch=200, validation_split=0.1, batch_size=10)
+
+end = time.time()
+
+elapsed = end - start
+
+print("ELAPSED TIME:", elapsed)
 
 # Analysis
+# Plot data
+        # Using matplotlib, plot success rate (2 axis chart with selected data)
+plt.figure(1)
+plt.subplot(211)
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('Model Accuracy')
+plt.ylabel('Accuracy (%)')
+plt.xlabel("Epoch")
+plt.legend(['train', 'test'], loc='lower right')
+
+# summarize history for loss
+plt.subplot(212)
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss (%)')
+plt.xlabel("Epoch")
+plt.legend(['train', 'test'], loc='lower left')
+plt.show()
