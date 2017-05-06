@@ -23,3 +23,10 @@ Type the commands in Terminal (for Mac) or cmd (for Windows)
 Installation: https://keras.io/#installation
 
 Type the commands in Terminal (for Mac) or cmd (for Windows)
+
+
+<h2> Running the script </h2>
+
+You can run the python script via command-line or with the Python IDE
+
+Make sure the .CSV file is in the same directory as the python script, and that there is no other file with the same name.
